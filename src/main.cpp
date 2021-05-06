@@ -1,28 +1,28 @@
 #include <iostream>
-#include "libs/arifm_mirea.h"
+#include "lrp.cpp"
 
+
+void testLrp() {
+
+    //t = 5; Евлентьев Максим КТСО-01-17
+    //0x100B -> x^16+x^12+x^3+x+1
+    unsigned short a[32], f_x = 0x100B, t = 5;
+
+    //init
+    for (int i = 0; i < 32; i++)
+        a[i] = i + t;
+
+    lrp(a,f_x, t, 32, 64);
+
+    for (int i = 64; i < 96; i++) {
+        lrp(a,f_x, t, 32, 1);
+        print(a, 32);
+    }
+
+}
 
 int main() {
-    int n = 2;
-    unsigned int *a = new unsigned int[n];
-    unsigned int *b = new unsigned int[n];
-    unsigned int *c = new unsigned int[n];
-
-    //12
-    a[0] = 1;
-    a[1] = 2;
-
-    //23
-    b[0] = 2;
-    b[1] = 3;
-
-
-    sum(n, a, b, c);
-
-    //35
-    for (int i = 0; i < n; i++) {
-        std::cout << c[i];
-    }
+    testLrp();
 
     return 0;
 }
