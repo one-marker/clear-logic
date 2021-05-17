@@ -1,20 +1,14 @@
-
+//#include "pch.h"
 #include "arifm_mirea.h"
 #include <string.h>
-
-
 
 const unsigned int min(unsigned int a, unsigned int b) { return a > b ? b : a; }
 const unsigned int max(unsigned int a, unsigned int b) { return a > b ? a : b; }
 
 void umn(int n, unsigned int *a, unsigned int *b, unsigned int *c)
 {
-//	unsigned long long a1[MAXLEN];
-//	unsigned long long b1[MAXLEN];
-    unsigned int a1[n];
-    unsigned int b1[n];
-
-
+	unsigned long long a1[MAXLEN];
+	unsigned long long b1[MAXLEN];
 	unsigned long long d;
 	int i,j;
 
@@ -22,7 +16,7 @@ void umn(int n, unsigned int *a, unsigned int *b, unsigned int *c)
 	while(--i>=0){ a1[i] = a[i]; b1[i] = b[i];}
 
 	i = 2*n;
-	//while (--i >= 0) c[i] = 0;
+	while (--i >= 0) c[i] = 0;
 
 	for(i = 0; i < n; i++)
 	{
@@ -36,8 +30,6 @@ void umn(int n, unsigned int *a, unsigned int *b, unsigned int *c)
 		c[i+j] = d;
 	}
 }
-
-
 
 int first_bit(int n, unsigned int *a)
 {
