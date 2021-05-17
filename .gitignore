@@ -11,20 +11,20 @@
 *.gch
 *.pch
 
-# Compiled Dynamic libraries
+# Compiled Dynamic raries
 *.so
-*.dylib
+*.dy
 *.dll
 
 # Fortran module files
 *.mod
 *.smod
 
-# Compiled Static libraries
+# Compiled Static raries
 *.lai
 *.la
 *.a
-*.lib
+*.
 
 # Executables
 *.exe
