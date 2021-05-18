@@ -1,7 +1,7 @@
 ﻿#include "libs/arifm_mirea.h"
 #include <iostream>
 
-int processNewX(int len,
+void processNewX(int len,
                 unsigned int* pointX,
                 unsigned int* pointX0,
                 unsigned int* p,
@@ -14,7 +14,6 @@ int processNewX(int len,
     mulp(len, lambda, lambda, p, mulpLambda);
     sum_mod(len, pointX, pointX0, p, sumRes);
     raz_mod(len, mulpLambda, sumRes, p, newX);
-    return 0;
 }
 
 
@@ -104,14 +103,23 @@ int smartSum(int n,
 }
 
 
-int main()
-{
+int main() {
+
     //Евлентьев Максим КТСО-01-17. 5 Вариант
 
     //18446744073709551616 + 5 = 18446744073709551621
     //10000000000000000000000000000000000000000000000000000000000000101
-    int k_bin[64] = {1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,01,0,1};
-    int n = 16;
+
+    unsigned int k[8] = { 0x0000005,
+                            0x00000000,
+                            0x00000001,
+                            0x00000000,
+                            0x00000000,
+                            0x00000000,
+                            0x00000000,
+                            0x00000000};
+
+    int n = 256;
 
     unsigned int* p = new unsigned int[n]; //модуль эл.кривой
     unsigned int* a = new unsigned int[n]; //коэфициент a эл.кривой
@@ -119,19 +127,19 @@ int main()
     unsigned int* q = new unsigned int[n]; //порядок циклической подгруппы
     unsigned int* xp = new unsigned int[n]; //коэфициент x точки эл.кривой
     unsigned int* yp = new unsigned int[n]; //коэфициент y точки эл.кривой
-    unsigned int* k = new unsigned int[n]; //порядок кратной точки
 
     unsigned int* xp_begin = xp;
     unsigned int* yp_begin = yp;
     unsigned int* xp_result = new unsigned int[n];
     unsigned int* yp_result = new unsigned int[n];
 
-    for (int i = 1 ; i <= 64; i++) {
+    for (int i = 256 - 1; i >= 0; i--) {
         smartSum(n, xp, yp,xp_begin, yp_begin, a ,p, xp_result, yp_result);
-        if (k_bin[i] == 1)
+        unsigned int currentElementIndex = i / 32;
+        unsigned char currentBit = (k[currentElementIndex] >> (i % (32))) & 1;
+        if (currentBit)
             smartSum(n, xp, yp,xp_begin, yp_begin, a ,p, xp_result, yp_result);
     }
-
 
     delete [] p;
     delete [] a;
@@ -143,8 +151,6 @@ int main()
     delete [] yp_begin;
     delete [] xp_result;
     delete [] yp_result;
-    delete [] k;
-
 
 }
 
