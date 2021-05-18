@@ -35,12 +35,12 @@ void processNewY(int len,
 
 }
 
-void processLambdaForSameX(int len,
-                           unsigned int* pointX,
-                           unsigned int* pointY,
-                           unsigned int*  a,
-                           unsigned int* p,
-                           unsigned int* lambda) {
+void lambdaForSameX(int len,
+                    unsigned int* pointX,
+                    unsigned int* pointY,
+                    unsigned int*  a,
+                    unsigned int* p,
+                    unsigned int* lambda) {
 
     unsigned int* mulpRes1 = new unsigned int[len * 2];
     unsigned int* mulpRes2 = new unsigned int[len * 2];
@@ -61,13 +61,13 @@ void processLambdaForSameX(int len,
     mulp(len, addRes , inverseRes, p, lambda);
 }
 
-void processLambdaForDifferentX(int len,
-                                unsigned int* pointX,
-                                unsigned int* pointY,
-                                unsigned int* pointX0,
-                                unsigned int* pointY0,
-                                unsigned int* p,
-                                unsigned int* lambda) {
+void lambdaForDifferentX(int len,
+                         unsigned int* pointX,
+                         unsigned int* pointY,
+                         unsigned int* pointX0,
+                         unsigned int* pointY0,
+                         unsigned int* p,
+                         unsigned int* lambda) {
     unsigned int* raz_mod1 = new unsigned int[len];
     unsigned int* raz_mod2 = new unsigned int[len];
     unsigned int* obrRes = new unsigned int[len];
@@ -93,9 +93,9 @@ int smartSum(int n,
 
     unsigned int* lambda = new unsigned int[n];
     if (cmp(n, pointX, pointX0) == 0)
-        processLambdaForSameX(n, pointX, pointX0, a, p, lambda);
+        lambdaForSameX(n, pointX, pointX0, a, p, lambda);
     else
-        processLambdaForDifferentX(n, pointX, pointY, pointX0, pointY0, p, lambda);
+        lambdaForDifferentX(n, pointX, pointY, pointX0, pointY0, p, lambda);
 
     processNewX(n, pointX, pointX0, p, lambda, pointNewX);
     processNewY(n, pointX, pointY, pointNewX, p, lambda, pointNewY);
