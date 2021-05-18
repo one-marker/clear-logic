@@ -1,18 +1,108 @@
 ﻿#include "libs/arifm_mirea.h"
 #include <iostream>
 
+int processNewX(int len,
+                unsigned int* pointX,
+                unsigned int* pointX0,
+                unsigned int* p,
+                unsigned int* lambda,
+                unsigned int* newX) {
+
+    unsigned int* mulpLambda = new unsigned int[len];
+    unsigned int* sumRes = new unsigned int [len * 2];
+
+    mulp(len, lambda, lambda, p, mulpLambda);
+    sum_mod(len, pointX, pointX0, p, sumRes);
+    raz_mod(len, mulpLambda, sumRes, p, newX);
+    return 0;
+}
+
+
+void processNewY(int len,
+                 unsigned int* pointX,
+                 unsigned int* pointY,
+                 unsigned int* newX,
+                 unsigned int* p,
+                 unsigned int* lambda,
+                 unsigned int* newY) {
+    unsigned int* raz_modRes1 = new unsigned int[len];
+    unsigned int* mulRes = new unsigned int [len * 2];
+
+
+    raz_mod(len, pointX, newX, p, raz_modRes1);
+    mulp(len, lambda, pointY, p, mulRes);
+    raz_mod(len, mulRes, raz_modRes1, p, newY);
+
+}
+
+void processLambdaForSameX(int len,
+                           unsigned int* pointX,
+                           unsigned int* pointY,
+                           unsigned int*  a,
+                           unsigned int* p,
+                           unsigned int* lambda) {
+
+    unsigned int* mulpRes1 = new unsigned int[len * 2];
+    unsigned int* mulpRes2 = new unsigned int[len * 2];
+    unsigned int* mulpRes3 = new unsigned int[len * 2];
+    unsigned int* inverseRes = new unsigned int[len ];
+    unsigned int* addRes = new unsigned int[len * 2];
+
+    unsigned int* tmp = new unsigned int[len];
+    tmp[0] = 0x3;
+
+    mulp(len, pointX, pointX, p , mulpRes1);
+    mulp(len, mulpRes1, tmp, reinterpret_cast<unsigned int *>(1), mulpRes2);
+    sum_mod(len, mulpRes1, a, p, addRes);
+
+    tmp[0] = 0x2;
+    mulp(len, pointY, tmp, reinterpret_cast<unsigned int *>(1), mulpRes2);
+    obr(len, mulpRes2, p, inverseRes);
+    mulp(len, addRes , inverseRes, p, lambda);
+}
+
+void processLambdaForDifferentX(int len,
+                                unsigned int* pointX,
+                                unsigned int* pointY,
+                                unsigned int* pointX0,
+                                unsigned int* pointY0,
+                                unsigned int* p,
+                                unsigned int* lambda) {
+    unsigned int* raz_mod1 = new unsigned int[len];
+    unsigned int* raz_mod2 = new unsigned int[len];
+    unsigned int* obrRes = new unsigned int[len];
+
+
+    raz_mod(len, pointY0, pointY, p , raz_mod1);
+    raz_mod(len, pointX0, pointX, p , raz_mod2);
+    obr(len, raz_mod1, p, obrRes);
+    mulp(len, obrRes, raz_mod2, p, lambda);
+}
 
 
 
-using namespace std;
+int smartSum(int n,
+               unsigned int* pointX,
+               unsigned int* pointY,
+               unsigned int* pointX0,
+               unsigned int* pointY0,
+               unsigned int* a,
+               unsigned int* p,
+               unsigned int* pointNewX,
+               unsigned int* pointNewY) {
 
-int xp_count(int len, unsigned int* lambda, unsigned int* xp_cur, unsigned int* xp_first, unsigned int* p, unsigned int* xp_res);
-int yp_count(int len, unsigned int* lambda, unsigned int* xp_cur, unsigned int* xp, unsigned int* yp_cur, unsigned int* p, unsigned int* yp_res);
-int numerator_count(int len, unsigned int* xp_cur, unsigned int* a, unsigned int* numerator, unsigned int* p);
-int denominator_count(int len, unsigned int* yp_cur, unsigned int* denominator);
-int simple_sum(int n, unsigned int* x_left, unsigned int* y_left,
-               unsigned int* x_right, unsigned int* y_right, unsigned int* x_result, unsigned int* y_result, int lambda_type,
-               unsigned int* p, unsigned int* a, unsigned int* b);
+    unsigned int* lambda = new unsigned int[n];
+    if (cmp(n, pointX, pointX0) == 0)
+        processLambdaForSameX(n, pointX, pointX0, a, p, lambda);
+    else
+        processLambdaForDifferentX(n, pointX, pointY, pointX0, pointY0, p, lambda);
+
+    processNewX(n, pointX, pointX0, p, lambda, pointNewX);
+    processNewY(n, pointX, pointY, pointNewX, p, lambda, pointNewY);
+
+    delete [] lambda;
+}
+
 
 int main()
 {
@@ -36,16 +126,12 @@ int main()
     unsigned int* xp_result = new unsigned int[n];
     unsigned int* yp_result = new unsigned int[n];
 
-    for (int i = 1 ; i < 65; i++) {
-        simple_sum(n, xp, yp, xp, yp, xp_result, yp_result, 0, p, a, b);
-        xp = xp_result;
-        yp = yp_result;
-        if (k_bin[i] == 1) {
-            simple_sum(n, xp, yp, xp_begin, yp_begin, xp_result, yp_result, 1, p, a, b);
-            xp = xp_result;
-            yp = yp_result;
-        }
+    for (int i = 1 ; i <= 64; i++) {
+        smartSum(n, xp, yp,xp_begin, yp_begin, a ,p, xp_result, yp_result);
+        if (k_bin[i] == 1)
+            smartSum(n, xp, yp,xp_begin, yp_begin, a ,p, xp_result, yp_result);
     }
+
 
     delete [] p;
     delete [] a;
@@ -59,107 +145,6 @@ int main()
     delete [] yp_result;
     delete [] k;
 
-
-}
-
-
-int simple_sum(int n, unsigned int* x_left, unsigned int* y_left,
-               unsigned int* x_right, unsigned int* y_right, unsigned int* x_result, unsigned int* y_result, int lambda_type,
-               unsigned int* p, unsigned int* a, unsigned int* b)
-{
-
-    //x_left = xp
-    //y_left = yp
-    //x_right = xq
-    //y_right = yq
-
-    unsigned int* lambda = new unsigned int[n];
-    unsigned int* numerator; //числитель при расчете lambda
-    unsigned int* denominator; //знаменатель при расчете lambda
-
-    if (lambda_type == 0) {
-        //складываем точку саму с собой P + P
-        numerator_count(n, x_left, a, numerator, p);
-        denominator_count(n, y_left, denominator);
-        div(n, numerator, denominator, lambda);
-        obr(n, lambda, p, lambda);
-    } else {
-        //складывем точку с самой начальной точкой P + Q
-        raz(n, y_right, y_left, numerator);
-        raz(n, x_right, x_left, denominator);
-        div(n, numerator, denominator, lambda);
-        obr(n, lambda, p, lambda);
-    }
-    unsigned int* x_res = new unsigned int[n];
-    unsigned int* y_res = new unsigned int[n];
-
-    // ( lambda^2 – x1 – x2 ) mod p
-    xp_count(n, lambda, x_left, x_right,  p, x_res); //коэфициент x точки эл.кривой
-    unsigned int* xp_cur = x_res;
-    // ( lambda ( x1 – x3 ) – y1 ) mod p
-    yp_count(n, lambda, x_left, xp_cur, y_left, p, y_res); //коэфициент y точки эл.кривой
-    unsigned int* yp_cur = y_res;
-
-    x_left = xp_cur;
-    y_left = yp_cur;
-
-    delete[] numerator;
-    delete[] denominator;
-    delete[] x_res;
-    delete[] y_res;
-    delete[] xp_cur;
-    delete[] yp_cur;
-    delete[] lambda;
-}
-
-int xp_count(int len, unsigned int* lambda, unsigned int* xp_cur, unsigned int* xp_first, unsigned int* p, unsigned int* xp_res)
-{
-    //(lambda * lambda - xp_cur - xp_first) % p
-
-    mulp(len, lambda, lambda, p, xp_res);
-    change_sign(len, xp_cur);
-    change_sign(len, xp_first);
-    sum(len, xp_cur, xp_first, xp_cur);
-    sum_mod(len, xp_res, xp_cur, p, xp_res);
-
-    return 0;
-
-}
-
-int yp_count(int len, unsigned int* lambda, unsigned int* xp_cur, unsigned int* xp, unsigned int* yp_cur, unsigned int* p, unsigned int* yp_res)
-{
-    //(lambda * (xp_cur - xp) - yp_cur) % p
-    change_sign(len, xp);
-    sum(len, xp_cur, xp, xp_cur);
-    change_sign(len, xp);
-    mulp(len, lambda, xp_cur, p, yp_res);
-    change_sign(len, yp_cur);
-    sum_mod(len, yp_res, yp_cur, p, yp_res);
-
-    return 0;
-
-}
-
-int numerator_count(int len, unsigned int* xp_cur, unsigned int* a, unsigned int* numerator, unsigned int* p)
-{
-    //3 * xp_cur * xp_cur + a
-    unsigned int* r = new unsigned int[len];
-    r[0] = 0x3;
-    mulp(len, xp_cur, xp_cur, p, numerator);
-    mulp(len, numerator, r, p, numerator);
-    sum(len, numerator, a, numerator);
-
-    delete [] r;
-    return 0;
-
-}
-
-int denominator_count(int len, unsigned int* yp_cur, unsigned int* denominator)
-{
-    //2 * yp_cur
-    sum(len, yp_cur, yp_cur, denominator);
-
-    return 0;
 
 }
 
